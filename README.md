@@ -1,1 +1,1 @@
-# directus-helm-chart
+# helm charts
