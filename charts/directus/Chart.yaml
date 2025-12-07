@@ -1,0 +1,25 @@
+apiVersion: v2
+name: directus
+type: application
+
+description: |
+  A Helm chart for installing Directus on Kubernetes.
+  Directus is a real-time API and App dashboard for managing SQL database content.
+
+home: https://directus.io/
+
+sources:
+  - https://github.com/radiophysic/directus-helm-chart/tree/master/charts/directus
+  - https://github.com/directus/directus
+
+icon: https://avatars.githubusercontent.com/u/79210894
+
+maintainers:
+  - name: mikesindieiev
+    email: sindieiev@protonmail.ch
+    url: https://github.com/directus-labs/helm-chart
+
+version: 2.0.2
+appVersion: "11.8.0"
+
+dependencies: []

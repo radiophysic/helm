@@ -1,0 +1,144 @@
+---
+replicaCount: 1
+
+image:
+  repository: directus/directus
+  pullPolicy: IfNotPresent
+  tag: ""
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+initContainers: []
+sidecars: []
+
+sidecar:
+  # IMPORTANT! This feature is going to be DEPRECATED in the next release in favour of `sidecars`
+  # -- Sidecars for Directus pod
+  enabled: false
+  repository: busybox
+  tag: latest
+  pullPolicy: Always
+  # -- Command to run in sidecar docker image
+  command:
+    - /bin/sh
+    - -c
+    - sleep 3600;
+  securityContext: {}
+    # allowPrivilegeEscalation: true
+
+adminEmail: "admin@example.com"
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: true
+  enableTLS: true
+  className: "traefik"
+  annotations:
+    kubernetes.io/ingress.class: traefik
+    cert-manager.io/cluster-issuer: letsencrypt-production
+  hosts:
+    - host: example.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: directus-tls
+      hosts:
+        - example.local
+
+extraEnvVars: []
+
+attachExistingSecrets:
+   - directus-postgresql-secret
+
+resources: {}
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 1
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+livenessProbe:
+  enabled: true
+  httpGet:
+    path: /
+    port: http
+readinessProbe:
+  enabled: true
+  httpGet:
+    path: /
+    port: http
+startupProbe:
+  enabled: false
+  httpGet:
+    path: /
+    port: http
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+extraVolumes: []
+extraVolumeMounts: []
+
+# -- This setting enables the creation of `ADMIN_PASSWORD`, `KEY`, and `SECRET` variables in k8s secrets
+# If it is set to false, you MUST set these variables manually via existing secret resource and set its name below
+createApplicationSecret: true
+
+applicationSecretName: "directus-application-secret"
+
+databaseEngine: "postgresql"
+
+createMysqlSecret: false
+mysql:
+  enableInstallation: false
+  auth:
+    existingSecret: ""
+    database: ""
+    username: ""
+  mysqlURL: ""
+  mysqlPort: ""
+
+# -- Create PostgreSQL secret in Directus chart
+# If set to enable, postgresql secret with values of `postgres-password`, `password`, and `replication-password` variables will be created
+# Please consult the official bitnami postgres values file - https://github.com/bitnami/charts/blob/main/bitnami/postgresql/values.yaml#L164
+# If set to false, you MUST create a secret resource in k8s for postgresql installation and set the correct value to the `existingSecret` in the postgresql settings setion
+createPostgresqlSecret: false
+
+postgresql:
+  # -- The switch to switch off the installation of the postgresql
+  # The rest of the settings are being used during the installation and for DB connection
+  # Link to the values.yaml file in bitnami repo - https://github.com/bitnami/charts/blob/main/bitnami/postgresql/values.yaml
+  enableInstallation: false
+  auth:
+    existingSecret: "directus-postgresql-secret"
+    database: "directus"
+    username: "directus"
+  postgresqlURL: "pg"
+  postgresqlPort: "5432"
+
+redis:
+  enabled: false
+  auth:
+    existingSecret: ""
+    # -- The key in the secret with password
+    existingSecretPasswordKey: ""
+  replica:
+    replicaCount: 0
